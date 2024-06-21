@@ -1,7 +1,9 @@
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use tiny_keccak::{Hasher, Keccak};
 use tokio_util::sync::CancellationToken;
+
+const TIME_LIMIT: Duration = Duration::from_millis(800);
 
 pub fn find_nonce(random: u64, leading_zeros: u8, token: CancellationToken) -> Option<u64> {
     let start = Instant::now();
@@ -24,7 +26,7 @@ pub fn find_nonce(random: u64, leading_zeros: u8, token: CancellationToken) -> O
         if count_leading_zeros(&hash) == target_zeros {
             let duration = start.elapsed();
             println!("Found valid nonce in {:?}", duration);
-            return if duration.as_millis() > 800 {
+            return if duration > TIME_LIMIT {
                 None
             } else {
                 Some(nonce) // Found a valid nonce
