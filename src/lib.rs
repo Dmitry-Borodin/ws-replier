@@ -5,6 +5,30 @@ use tokio_util::sync::CancellationToken;
 
 const TIME_LIMIT: Duration = Duration::from_millis(800);
 
+pub async fn find_nonce_parallel(
+    random: u64,
+    leading_zeros: u8,
+    token: CancellationToken,
+) -> Option<u64> {
+    let (result_tx, mut result_rx) = tokio::sync::mpsc::channel(1);
+
+    let num_cores = num_cpus::get();
+    for _ in 0..num_cores {
+        let token_clone = token.clone();
+        let result_tx = result_tx.clone();
+        tokio::spawn(async move {
+            let nonce = find_nonce(random, leading_zeros, token_clone);
+            if let Some(nonce) = nonce {
+                let _ = result_tx.send(nonce).await;
+            }
+        });
+    }
+
+    let result = result_rx.recv().await;
+    token.cancel();
+    return result;
+}
+
 pub fn find_nonce(random: u64, leading_zeros: u8, token: CancellationToken) -> Option<u64> {
     let start = Instant::now();
     let mut nonce: u64;
@@ -13,8 +37,8 @@ pub fn find_nonce(random: u64, leading_zeros: u8, token: CancellationToken) -> O
     loop {
         // Check if we should cancel
         if token.is_cancelled() {
-            let duration = start.elapsed();
-            println!("Task was cancelled after {:?}", duration);
+            // let duration = start.elapsed();
+            // println!("Task was cancelled after {:?}", duration);
             return None; // Task was cancelled
         }
 
@@ -25,7 +49,7 @@ pub fn find_nonce(random: u64, leading_zeros: u8, token: CancellationToken) -> O
         let hash = keccak256(&data);
         if count_leading_zeros(&hash) == target_zeros {
             let duration = start.elapsed();
-            println!("Found valid nonce in {:?}", duration);
+            // println!("Found valid nonce in {:?}", duration);
             return if duration > TIME_LIMIT {
                 None
             } else {
