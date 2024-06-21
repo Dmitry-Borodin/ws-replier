@@ -4,12 +4,19 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-tokio = { version = "1.29.1", features = ["full"] }
+tokio = { version = "1.38.0", features = ["full"] }
 tokio-stream = "0.1"
 tokio-tungstenite = "0.23.1"
 env_logger = "0.11.3"
-tiny-keccak = { version = "2.0.0", features = ["keccak"] }
-rand = "0.8"
+tiny-keccak = { version = "2.0.2", features = ["keccak"] }
+rand = "0.8.5"
 async-channel = "2.3.1"
 tokio-util = "0.7.11"
 futures-util = "0.3.30"
+
+[dev-dependencies]
+criterion = "0.5.1"
+
+[[bench]]
+name = "find_nonce"
+harness = false
