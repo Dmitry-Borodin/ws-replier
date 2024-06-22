@@ -8,7 +8,7 @@ use tokio_tungstenite::connect_async;
 use tokio_tungstenite::tungstenite::Message;
 use tokio_util::sync::CancellationToken;
 
-use ws_replyer::find_nonce;
+use ws_replier::find_nonce;
 
 const SERVER_URL: &str = "ws://34.159.18.133:22430/";
 const DEBUGGING: bool = true;

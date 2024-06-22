@@ -2,7 +2,7 @@ use criterion::{BatchSize, Criterion, criterion_group, criterion_main};
 use tokio::runtime::Runtime;
 use tokio_util::sync::CancellationToken;
 
-use ws_replyer::{find_nonce, find_nonce_parallel};
+use ws_replier::{find_nonce, find_nonce_parallel};
 
 fn benchmark_find_nonce(c: &mut Criterion) {
     let token = CancellationToken::new();
